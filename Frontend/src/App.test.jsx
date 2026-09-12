@@ -1,0 +1,26 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it } from 'vitest'
+import App from './App'
+
+describe('shortening flow', () => {
+  it('reveals expiration fields and rejects a malformed URL', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    expect(
+      screen.getByRole('heading', { name: /shorten a link in one click/i }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /set expiration/i }))
+    expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/end date/i)).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText(/url to shorten/i), 'not-a-url')
+    await user.click(screen.getByRole('button', { name: /short url/i }))
+
+    expect(
+      screen.getByText(/enter a valid http or https url/i),
+    ).toBeInTheDocument()
+  })
+})

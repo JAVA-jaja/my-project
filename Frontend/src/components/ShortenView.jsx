@@ -1,0 +1,97 @@
+import { useState } from 'react'
+import { makeShortUrl, validateDateRange, validateHttpUrl } from '../lib/mockShortener'
+import Mascot from './Mascot'
+
+export default function ShortenView({ onShorten }) {
+  const [url, setUrl] = useState('')
+  const [expirationOpen, setExpirationOpen] = useState(false)
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [message, setMessage] = useState('')
+
+  async function pasteUrl() {
+    try {
+      const text = await navigator.clipboard.readText()
+      setUrl(text)
+      setMessage('Pasted from clipboard.')
+    } catch {
+      setMessage('Clipboard access is unavailable. Paste the URL manually.')
+    }
+  }
+
+  function submit(event) {
+    event.preventDefault()
+    if (!validateHttpUrl(url.trim())) {
+      setMessage('Enter a valid HTTP or HTTPS URL.')
+      return
+    }
+
+    const dateError = expirationOpen ? validateDateRange(startDate, endDate) : ''
+    if (dateError) {
+      setMessage(dateError)
+      return
+    }
+
+    setMessage('')
+    onShorten({
+      originalUrl: url.trim(),
+      shortUrl: makeShortUrl(url.trim()),
+      startDate: expirationOpen ? startDate : '',
+      endDate: expirationOpen ? endDate : '',
+    })
+  }
+
+  return (
+    <section className="view view--shorten">
+      <h1>Shorten a link in one click!</h1>
+      <form className="action-panel shorten-panel" onSubmit={submit} noValidate>
+        <div className="url-row">
+          <div className="input-with-action">
+            <label className="sr-only" htmlFor="long-url">URL to shorten</label>
+            <input
+              id="long-url"
+              value={url}
+              onChange={(event) => setUrl(event.target.value)}
+              placeholder="Paste your URL here...(e.g. https://junoshort.com)"
+            />
+            <button className="mini-button" type="button" onClick={pasteUrl}>
+              Paste <span aria-hidden="true">▣</span>
+            </button>
+          </div>
+          <button className="primary-button" type="submit">Short URL</button>
+        </div>
+
+        <div className={`options-row ${expirationOpen ? 'options-row--open' : ''}`}>
+          <div className="option-block">
+            <span className="option-label">Option</span>
+            <button
+              className={`expiration-button ${expirationOpen ? 'is-active' : ''}`}
+              type="button"
+              aria-expanded={expirationOpen}
+              onClick={() => setExpirationOpen((open) => !open)}
+            >
+              <span className="calendar-icon" aria-hidden="true">▣</span>
+              Set Expiration
+            </button>
+          </div>
+
+          {expirationOpen && (
+            <div className="date-fields">
+              <label>
+                <span>Start date</span>
+                <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+              </label>
+              <label>
+                <span>End date</span>
+                <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+              </label>
+            </div>
+          )}
+
+          <Mascot mood="happy" />
+        </div>
+        <p className="form-message" aria-live="polite">{message}</p>
+      </form>
+    </section>
+  )
+}
