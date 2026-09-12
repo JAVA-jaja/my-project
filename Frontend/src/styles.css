@@ -20,7 +20,7 @@ button { color: inherit; }
 button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-offset: 2px; }
 
 .app-shell { width: 100%; min-height: 100vh; margin: 0; background: var(--cream); overflow: hidden; }
-.site-header { min-height: clamp(68px, 8vh, 92px); padding: 0 clamp(24px, 7vw, 150px); display: flex; align-items: center; gap: clamp(45px, 7vw, 130px); background: var(--purple); }
+.site-header { min-height: clamp(88px, 12vh, 112px); padding: 0 clamp(24px, 7vw, 150px); display: flex; align-items: center; gap: clamp(45px, 7vw, 130px); background: var(--purple); }
 .brand, .nav-link { border: 0; background: transparent; cursor: pointer; }
 .brand { padding: 0; display: inline-flex; align-items: center; font-size: clamp(2rem, 3vw, 3.5rem); line-height: 1; white-space: nowrap; }
 .brand-star { margin-left: 5px; font-size: 1.15em !important; }
@@ -92,7 +92,7 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
 }
 
 @media (max-height: 800px) and (min-width: 701px) {
-  .site-header { min-height: 64px; }
+  .site-header { min-height: 112px; }
   .view h1 { margin-block: 28px 32px; font-size: clamp(2.7rem, 4vw, 4rem); }
   .action-panel { padding-top: 16px; }
   .options-row { min-height: 112px; }
