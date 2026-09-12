@@ -1,0 +1,101 @@
+package controllers
+
+import (
+	"errors"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+
+	"short-url/services"
+
+	"github.com/gin-gonic/gin"
+)
+
+type LinkController struct {
+	service *services.LinkService
+}
+
+func NewLinkController(service *services.LinkService) *LinkController {
+	return &LinkController{service: service}
+}
+
+type createLinkRequest struct {
+	URL string `json:"url" binding:"required"`
+}
+
+func validateDestinationURL(value string) error {
+	parsed, err := url.ParseRequestURI(value)
+	if err != nil {
+		return err
+	}
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		return errors.New("only http and https URLs are allowed")
+	}
+	if parsed.Host == "" {
+		return errors.New("URL host is required")
+	}
+	return nil
+}
+
+func (ctl *LinkController) Create(c *gin.Context) {
+	var request createLinkRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "url is required"})
+		return
+	}
+
+	request.URL = strings.TrimSpace(request.URL)
+	if len(request.URL) > 4096 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "url is too long"})
+		return
+	}
+	if err := validateDestinationURL(request.URL); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid destination URL"})
+		return
+	}
+
+	link, err := ctl.service.Create(c.Request.Context(), request.URL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot create short link"})
+		return
+	}
+
+	baseURL := strings.TrimRight(os.Getenv("BASE_URL"), "/")
+	c.JSON(http.StatusCreated, gin.H{
+		"id":             link.ID,
+		"shortCode":      link.ShortCode,
+		"shortUrl":       baseURL + "/" + link.ShortCode,
+		"destinationUrl": link.DestinationURL,
+		"clickCount":     link.ClickCount,
+		"createdAt":      link.CreatedAt,
+	})
+}
+
+func (ctl *LinkController) Get(c *gin.Context) {
+	link, err := ctl.service.FindByCode(c.Request.Context(), c.Param("code"))
+	if errors.Is(err, services.ErrLinkNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "short link not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, link)
+}
+
+func (ctl *LinkController) Redirect(c *gin.Context) {
+	destinationURL, err := ctl.service.ResolveAndIncrement(c.Request.Context(), c.Param("code"))
+	if errors.Is(err, services.ErrLinkNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "short link not found"})
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		return
+	}
+
+	c.Redirect(http.StatusFound, destinationURL)
+}
