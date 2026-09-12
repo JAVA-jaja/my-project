@@ -4,6 +4,27 @@ import { describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('shortening flow', () => {
+  it('switches real meme artwork with the active form state', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const defaultMeme = screen.getByRole('img', { name: /long url meme/i })
+    expect(defaultMeme.tagName).toBe('IMG')
+
+    await user.click(screen.getByRole('button', { name: /set expiration/i }))
+    expect(screen.getByRole('img', { name: /expiration meme/i })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /check total press/i }))
+    expect(screen.getByRole('img', { name: /waiting for click count meme/i })).toBeInTheDocument()
+
+    await user.type(
+      screen.getByLabelText(/short url to check/i),
+      'https://junoshort.com/ABC123',
+    )
+    await user.click(screen.getByRole('button', { name: /^check$/i }))
+    expect(screen.getByRole('img', { name: /click count result meme/i })).toBeInTheDocument()
+  })
+
   it('reveals expiration fields and rejects a malformed URL', async () => {
     const user = userEvent.setup()
     render(<App />)

@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded'
+import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined'
 import { mockClickCount } from '../lib/mockShortener'
-import Mascot from './Mascot'
+import MemeImage from './MemeImage'
 
 export default function StatsView() {
   const [url, setUrl] = useState('')
@@ -46,11 +48,11 @@ export default function StatsView() {
               placeholder="Paste your Short URL here...(e.g. https://junoshort.com/ABC123)"
             />
             <button className="mini-button" type="button" onClick={pasteUrl}>
-              Paste <span aria-hidden="true">▣</span>
+              Paste <ContentPasteRoundedIcon aria-hidden="true" />
             </button>
           </div>
           <button className="primary-button check-button" type="submit">
-            check <span aria-hidden="true">↖</span>
+            check <MouseOutlinedIcon aria-hidden="true" />
           </button>
         </div>
         <div className={`stats-output ${count === null ? 'stats-output--waiting' : ''}`}>
@@ -60,7 +62,7 @@ export default function StatsView() {
               <span>Times!</span>
             </div>
           )}
-          <Mascot mood={count === null ? 'curious' : 'excited'} />
+          <MemeImage variant={count === null ? 'statsWaiting' : 'statsResult'} />
         </div>
         <p className="form-message" aria-live="polite">{message}</p>
       </form>

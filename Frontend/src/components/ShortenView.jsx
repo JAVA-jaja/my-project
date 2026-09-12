@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
+import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded'
 import { makeShortUrl, validateDateRange, validateHttpUrl } from '../lib/mockShortener'
-import Mascot from './Mascot'
+import MemeImage from './MemeImage'
 
 export default function ShortenView({ onShorten }) {
   const [url, setUrl] = useState('')
@@ -58,7 +60,7 @@ export default function ShortenView({ onShorten }) {
               aria-describedby="shorten-message"
             />
             <button className="mini-button" type="button" onClick={pasteUrl}>
-              Paste <span aria-hidden="true">▣</span>
+              Paste <ContentPasteRoundedIcon aria-hidden="true" />
             </button>
           </div>
           <button className="primary-button" type="submit">Short URL</button>
@@ -73,7 +75,7 @@ export default function ShortenView({ onShorten }) {
               aria-expanded={expirationOpen}
               onClick={() => setExpirationOpen((open) => !open)}
             >
-              <span className="calendar-icon" aria-hidden="true">▣</span>
+              <CalendarMonthOutlinedIcon className="calendar-icon" aria-hidden="true" />
               Set Expiration
             </button>
           </div>
@@ -91,7 +93,7 @@ export default function ShortenView({ onShorten }) {
             </div>
           )}
 
-          <Mascot mood="happy" />
+          <MemeImage variant={expirationOpen ? 'expiration' : 'longUrl'} />
         </div>
         <p id="shorten-message" className="form-message" aria-live="polite">{message}</p>
       </form>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
 
 export default function ResultView({ result, onRestart }) {
   const [message, setMessage] = useState('')
@@ -25,7 +26,7 @@ export default function ResultView({ result, onRestart }) {
           <span className="input-with-action result-input">
             <input id="short-link" value={result.shortUrl} readOnly />
             <button className="mini-button" type="button" onClick={copyShortUrl}>
-              Copy <span aria-hidden="true">▣</span>
+              Copy <ContentCopyRoundedIcon aria-hidden="true" />
             </button>
           </span>
         </div>
