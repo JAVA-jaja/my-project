@@ -50,9 +50,12 @@ export default function ShortenView({ onShorten }) {
             <label className="sr-only" htmlFor="long-url">URL to shorten</label>
             <input
               id="long-url"
+              type="url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder="Paste your URL here...(e.g. https://junoshort.com)"
+              aria-invalid={message.startsWith('Enter a valid') || undefined}
+              aria-describedby="shorten-message"
             />
             <button className="mini-button" type="button" onClick={pasteUrl}>
               Paste <span aria-hidden="true">▣</span>
@@ -90,7 +93,7 @@ export default function ShortenView({ onShorten }) {
 
           <Mascot mood="happy" />
         </div>
-        <p className="form-message" aria-live="polite">{message}</p>
+        <p id="shorten-message" className="form-message" aria-live="polite">{message}</p>
       </form>
     </section>
   )

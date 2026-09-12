@@ -58,6 +58,7 @@ describe('shortening flow', () => {
     expect(
       screen.getByRole('heading', { name: /click count right here/i }),
     ).toBeInTheDocument()
+    expect(screen.queryByTestId('click-count')).not.toBeInTheDocument()
 
     await user.type(
       screen.getByLabelText(/short url to check/i),

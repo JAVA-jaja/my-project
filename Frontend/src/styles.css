@@ -3,7 +3,7 @@
 :root {
   font-family: 'Jua', 'Arial Rounded MT Bold', sans-serif;
   color: #111;
-  background: #1f1f1f;
+  background: #fffdf0;
   font-synthesis: none;
   --cream: #fffdf0;
   --purple: #a784e8;
@@ -14,7 +14,7 @@
 
 * { box-sizing: border-box; }
 
-body { margin: 0; min-width: 320px; min-height: 100vh; background: #1f1f1f; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--cream); }
 button, input { font: inherit; }
 button { color: inherit; }
 button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-offset: 2px; }
@@ -31,6 +31,7 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
 .url-row { display: flex; align-items: center; gap: 44px; }
 .input-with-action { min-width: 0; flex: 1; height: 70px; display: flex; align-items: center; padding: 0 10px 0 16px; border: 2px solid #cbc0e8; border-radius: 15px; background: var(--input); }
 .input-with-action input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; font-size: 1rem; }
+.input-with-action:focus-within { outline: 4px solid #6845ad; outline-offset: 2px; }
 .mini-button { flex: 0 0 auto; padding: 10px 12px; border: 0; border-radius: 13px; background: #d4bff2; cursor: pointer; }
 .primary-button { flex: 0 0 auto; padding: 15px 25px; border: 0; border-radius: 13px; background: var(--purple-light); font-size: 1.55rem; cursor: pointer; box-shadow: 0 3px 0 rgba(70, 50, 110, 0.08); }
 .options-row { min-height: 145px; display: grid; grid-template-columns: 180px 1fr 130px; align-items: center; gap: 28px; }
@@ -69,6 +70,7 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
 .stats-url-row { gap: 42px; }
 .check-button { padding-inline: 20px; font-size: 1.8rem; }
 .stats-output { min-height: 135px; display: flex; align-items: center; justify-content: space-between; padding: 10px 45px 0 35px; }
+.stats-output--waiting { justify-content: flex-end; }
 .count-line { display: flex; align-items: center; gap: 22px; font-size: 2rem; }
 .count-box { min-width: 95px; height: 90px; display: grid; place-items: center; border: 2px solid #d2c7e9; border-radius: 14px; background: var(--input); font-size: 2.1rem; }
 .mascot--curious .mascot-mouth { width: 8px; height: 8px; left: 39px; border: 2px solid #111; border-radius: 50%; }

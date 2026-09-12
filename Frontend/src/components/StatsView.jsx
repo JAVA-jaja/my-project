@@ -53,13 +53,13 @@ export default function StatsView() {
             check <span aria-hidden="true">↖</span>
           </button>
         </div>
-        <div className="stats-output">
-          <div className="count-line">
-            <output className="count-box" data-testid="click-count">
-              {count ?? 0}
-            </output>
-            <span>Times!</span>
-          </div>
+        <div className={`stats-output ${count === null ? 'stats-output--waiting' : ''}`}>
+          {count !== null && (
+            <div className="count-line">
+              <output className="count-box" data-testid="click-count">{count}</output>
+              <span>Times!</span>
+            </div>
+          )}
           <Mascot mood={count === null ? 'curious' : 'excited'} />
         </div>
         <p className="form-message" aria-live="polite">{message}</p>

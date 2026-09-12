@@ -20,15 +20,15 @@ export default function ResultView({ result, onRestart }) {
           <span>Your Link</span>
           <input value={result.originalUrl} readOnly />
         </label>
-        <label className="result-field">
-          <span>Short Link</span>
+        <div className="result-field">
+          <label htmlFor="short-link">Short Link</label>
           <span className="input-with-action result-input">
-            <input value={result.shortUrl} readOnly />
+            <input id="short-link" value={result.shortUrl} readOnly />
             <button className="mini-button" type="button" onClick={copyShortUrl}>
               Copy <span aria-hidden="true">▣</span>
             </button>
           </span>
-        </label>
+        </div>
         <p className="form-message result-message" aria-live="polite">{message}</p>
         <button className="restart-button" type="button" onClick={onRestart}>
           Do you want another one?
