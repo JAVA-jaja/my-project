@@ -3,6 +3,7 @@ import Header from './components/Header'
 import InfoCard from './components/InfoCard'
 import ResultView from './components/ResultView'
 import ShortenView from './components/ShortenView'
+import StatsView from './components/StatsView'
 
 export default function App() {
   const [view, setView] = useState('shorten')
@@ -27,6 +28,7 @@ export default function App() {
       <main className="page-content">
         {view === 'shorten' && <ShortenView onShorten={showResult} />}
         {view === 'result' && <ResultView result={result} onRestart={restart} />}
+        {view === 'stats' && <StatsView />}
       </main>
       {(view === 'shorten' || view === 'result') && <InfoCard />}
     </div>

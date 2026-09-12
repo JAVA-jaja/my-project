@@ -49,4 +49,23 @@ describe('shortening flow', () => {
       screen.getByRole('heading', { name: /shorten a link/i }),
     ).toBeInTheDocument()
   })
+
+  it('checks a short URL and returns a stable mock count', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /check total press/i }))
+    expect(
+      screen.getByRole('heading', { name: /click count right here/i }),
+    ).toBeInTheDocument()
+
+    await user.type(
+      screen.getByLabelText(/short url to check/i),
+      'https://junoshort.com/ABC123',
+    )
+    await user.click(screen.getByRole('button', { name: /^check$/i }))
+
+    expect(screen.getByTestId('click-count')).toHaveTextContent(/^\d+$/)
+    expect(screen.getByText('Times!')).toBeInTheDocument()
+  })
 })

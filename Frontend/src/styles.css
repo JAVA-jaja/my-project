@@ -63,6 +63,16 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
 .result-input { width: 100%; }
 .result-message { margin-top: -4px; }
 .restart-button { display: block; margin: 1px auto 0; padding: 7px 4px 1px; border: 0; background: transparent; text-decoration: underline; cursor: pointer; }
+.view--stats h1 { margin: 55px 0 52px; font-size: clamp(2.4rem, 4vw, 4rem); line-height: 1.22; }
+.view--stats h1 span { display: block; }
+.stats-panel { width: min(820px, 100%); padding-bottom: 12px; }
+.stats-url-row { gap: 42px; }
+.check-button { padding-inline: 20px; font-size: 1.8rem; }
+.stats-output { min-height: 135px; display: flex; align-items: center; justify-content: space-between; padding: 10px 45px 0 35px; }
+.count-line { display: flex; align-items: center; gap: 22px; font-size: 2rem; }
+.count-box { min-width: 95px; height: 90px; display: grid; place-items: center; border: 2px solid #d2c7e9; border-radius: 14px; background: var(--input); font-size: 2.1rem; }
+.mascot--curious .mascot-mouth { width: 8px; height: 8px; left: 39px; border: 2px solid #111; border-radius: 50%; }
+.mascot--excited { transform: rotate(3deg); }
 .info-card { width: min(740px, calc(100% - 48px)); margin: 72px auto 55px; padding: 14px 18px; border-radius: 17px; background: var(--mint); text-align: center; font-size: 1rem; line-height: 1.22; }
 .info-card p { margin: 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
@@ -80,5 +90,7 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
   .options-row, .options-row--open { grid-template-columns: 1fr; gap: 15px; padding-top: 15px; }
   .option-block { margin: 0; }.mascot { justify-self: center; }
   .date-fields label { grid-template-columns: 80px 1fr; }
+  .stats-output { padding: 20px 5px 0; }
+  .count-line { gap: 14px; }
   .info-card { margin-top: 40px; font-size: .9rem; }
 }
