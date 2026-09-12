@@ -74,6 +74,7 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
   .brand { font-size: 2rem; }.nav-link { font-size: .9rem; }
   .page-content { width: calc(100% - 28px); }
   .view h1 { margin: 48px 0 38px; font-size: 2.75rem; }
+  .action-panel, .stats-panel, .result-panel { width: 100%; }
   .action-panel { padding: 18px 14px; }
   .result-panel { padding: 20px 16px; }
   .url-row { flex-direction: column; gap: 12px; align-items: stretch; }
@@ -81,9 +82,13 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
   .options-row, .options-row--open { grid-template-columns: 1fr; gap: 15px; padding-top: 15px; }
   .option-block { margin: 0; }.meme-image { justify-self: center; }
   .date-fields label { grid-template-columns: 80px 1fr; }
-  .stats-output { padding: 20px 5px 0; }
+  .stats-output { flex-wrap: wrap; gap: 16px; padding: 20px 5px 0; }
   .count-line { gap: 14px; }
   .info-card { margin-top: 40px; font-size: .9rem; }
+}
+
+@media (max-width: 480px) {
+  .stats-output, .stats-output--waiting { flex-direction: column-reverse; justify-content: center; }
 }
 
 @media (max-height: 800px) and (min-width: 701px) {
