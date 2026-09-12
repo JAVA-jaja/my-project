@@ -1,0 +1,93 @@
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it } from 'vitest'
+import App from './App'
+
+describe('shortening flow', () => {
+  it('switches real meme artwork with the active form state', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const defaultMeme = screen.getByRole('img', { name: /long url meme/i })
+    expect(defaultMeme.tagName).toBe('IMG')
+
+    await user.click(screen.getByRole('button', { name: /set expiration/i }))
+    expect(screen.getByRole('img', { name: /expiration meme/i })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /check total press/i }))
+    expect(screen.getByRole('img', { name: /waiting for click count meme/i })).toBeInTheDocument()
+
+    await user.type(
+      screen.getByLabelText(/short url to check/i),
+      'https://junoshort.com/ABC123',
+    )
+    await user.click(screen.getByRole('button', { name: /^check$/i }))
+    expect(screen.getByRole('img', { name: /click count result meme/i })).toBeInTheDocument()
+  })
+
+  it('reveals expiration fields and rejects a malformed URL', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    expect(
+      screen.getByRole('heading', { name: /shorten a link in one click/i }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /set expiration/i }))
+    expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/end date/i)).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText(/url to shorten/i), 'not-a-url')
+    await user.click(screen.getByRole('button', { name: /short url/i }))
+
+    expect(
+      screen.getByText(/enter a valid http or https url/i),
+    ).toBeInTheDocument()
+  })
+
+  it('shows and copies a generated short URL, then restarts', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.type(
+      screen.getByLabelText(/url to shorten/i),
+      'https://example.com/long-path',
+    )
+    await user.click(screen.getByRole('button', { name: /short url/i }))
+
+    expect(
+      screen.getByRole('heading', { name: /your short link is ready/i }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByDisplayValue('https://example.com/long-path'),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /^copy$/i }))
+    expect(screen.getByText(/copied/i)).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /another one/i }))
+    expect(
+      screen.getByRole('heading', { name: /shorten a link/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('checks a short URL and returns a stable mock count', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /check total press/i }))
+    expect(
+      screen.getByRole('heading', { name: /click count right here/i }),
+    ).toBeInTheDocument()
+    expect(screen.queryByTestId('click-count')).not.toBeInTheDocument()
+
+    await user.type(
+      screen.getByLabelText(/short url to check/i),
+      'https://junoshort.com/ABC123',
+    )
+    await user.click(screen.getByRole('button', { name: /^check$/i }))
+
+    expect(screen.getByTestId('click-count')).toHaveTextContent(/^\d+$/)
+    expect(screen.getByText('Times!')).toBeInTheDocument()
+  })
+})
