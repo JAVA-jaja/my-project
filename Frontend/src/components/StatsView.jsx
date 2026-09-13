@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded'
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined'
-import { mockClickCount } from '../lib/mockShortener'
+import { getLinkStats } from '../lib/shortenerApi'
 import MemeImage from './MemeImage'
 
 export default function StatsView() {
   const [url, setUrl] = useState('')
   const [count, setCount] = useState(null)
   const [message, setMessage] = useState('')
+  const [checking, setChecking] = useState(false)
 
   async function pasteUrl() {
     try {
@@ -19,7 +20,7 @@ export default function StatsView() {
     }
   }
 
-  function checkUrl(event) {
+  async function checkUrl(event) {
     event.preventDefault()
     if (!url.trim()) {
       setCount(null)
@@ -27,8 +28,17 @@ export default function StatsView() {
       return
     }
 
-    setCount(mockClickCount(url.trim()))
-    setMessage('Click count updated.')
+    setChecking(true)
+    try {
+      const link = await getLinkStats(url.trim())
+      setCount(link.clickCount)
+      setMessage('Click count updated.')
+    } catch (error) {
+      setCount(null)
+      setMessage(error.message)
+    } finally {
+      setChecking(false)
+    }
   }
 
   return (
@@ -51,7 +61,7 @@ export default function StatsView() {
               Paste <ContentPasteRoundedIcon aria-hidden="true" />
             </button>
           </div>
-          <button className="primary-button check-button" type="submit">
+          <button className="primary-button check-button" type="submit" disabled={checking}>
             check <MouseOutlinedIcon aria-hidden="true" />
           </button>
         </div>

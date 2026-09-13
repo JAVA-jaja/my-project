@@ -1,7 +1,19 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+
+beforeEach(() => {
+  global.fetch = vi.fn(async (path, options) => {
+    if (options?.method === 'POST') {
+      return { ok: true, json: async () => ({ destinationUrl: 'https://example.com/long-path', shortUrl: 'https://junoshort.com/ABC123' }) }
+    }
+    if (path === '/api/links/ABC123') {
+      return { ok: true, json: async () => ({ clickCount: 12 }) }
+    }
+    return { ok: false, json: async () => ({ error: 'short link not found' }) }
+  })
+})
 
 describe('shortening flow', () => {
   it('switches real meme artwork with the active form state', async () => {
@@ -22,7 +34,7 @@ describe('shortening flow', () => {
       'https://junoshort.com/ABC123',
     )
     await user.click(screen.getByRole('button', { name: /^check$/i }))
-    expect(screen.getByRole('img', { name: /click count result meme/i })).toBeInTheDocument()
+    expect(await screen.findByRole('img', { name: /click count result meme/i })).toBeInTheDocument()
   })
 
   it('reveals expiration fields and rejects a malformed URL', async () => {
@@ -55,9 +67,7 @@ describe('shortening flow', () => {
     )
     await user.click(screen.getByRole('button', { name: /short url/i }))
 
-    expect(
-      screen.getByRole('heading', { name: /your short link is ready/i }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /your short link is ready/i })).toBeInTheDocument()
     expect(
       screen.getByDisplayValue('https://example.com/long-path'),
     ).toBeInTheDocument()
@@ -87,7 +97,7 @@ describe('shortening flow', () => {
     )
     await user.click(screen.getByRole('button', { name: /^check$/i }))
 
-    expect(screen.getByTestId('click-count')).toHaveTextContent(/^\d+$/)
+    expect(await screen.findByTestId('click-count')).toHaveTextContent('12')
     expect(screen.getByText('Times!')).toBeInTheDocument()
   })
 })
