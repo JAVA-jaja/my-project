@@ -21,13 +21,14 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
 
 .app-shell { width: 100%; min-height: 100vh; margin: 0; background: var(--cream); overflow: hidden; }
 .site-header { min-height: clamp(88px, 12vh, 112px); padding: 0 clamp(24px, 7vw, 150px); display: flex; align-items: center; gap: clamp(45px, 7vw, 130px); background: var(--purple); }
-.brand, .nav-link { border: 0; background: transparent; cursor: pointer; }
+.brand, .nav-link { border: 0; color: #111; background: transparent; cursor: pointer; }
 .brand { padding: 0; display: inline-flex; align-items: center; font-size: clamp(2rem, 3vw, 3.5rem); line-height: 1; white-space: nowrap; }
 .brand-star { margin-left: 5px; font-size: 1.15em !important; }
 .nav-link { padding: 10px 4px 4px; text-decoration: underline; font-size: clamp(1rem, 1.15vw, 1.35rem); }
 .page-content { width: min(1500px, calc(100% - 48px)); margin: 0 auto; }
 .view h1 { margin: clamp(34px, 5vh, 62px) 0 clamp(38px, 5vh, 60px); text-align: center; font-size: clamp(3rem, 4.4vw, 5.4rem); font-weight: 400; line-height: 1.05; }
 .action-panel { width: min(1050px, 86vw); margin: 0 auto; padding: clamp(20px, 2.3vh, 30px) clamp(22px, 2vw, 34px) 14px; border-radius: 18px; background: var(--mint); }
+.shorten-panel { width: min(1120px, 72vw); }
 .url-row { display: flex; align-items: center; gap: 44px; }
 .input-with-action { min-width: 0; flex: 1; height: clamp(56px, 6.5vh, 70px); display: flex; align-items: center; padding: 0 9px 0 14px; border: 2px solid #cbc0e8; border-radius: 15px; background: var(--input); }
 .input-with-action input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; font-size: 1rem; }
@@ -35,15 +36,16 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
 .mini-button { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; padding: 8px 10px; border: 0; border-radius: 13px; background: #d4bff2; cursor: pointer; }
 .mini-button svg { font-size: 1rem; }
 .primary-button { flex: 0 0 auto; padding: 15px 25px; border: 0; border-radius: 13px; background: var(--purple-light); font-size: 1.55rem; cursor: pointer; box-shadow: 0 3px 0 rgba(70, 50, 110, 0.08); }
-.options-row { min-height: clamp(122px, 17vh, 175px); display: grid; grid-template-columns: 190px 1fr 150px; align-items: center; gap: 28px; }
+.options-row { min-height: clamp(122px, 17vh, 175px); display: grid; grid-template-columns: 190px minmax(280px, 1fr) 150px; align-items: center; gap: 28px; }
+.options-row--open { min-height: 225px; }
 .option-block { align-self: start; margin-top: 4px; text-align: center; }
 .option-label { display: block; margin-bottom: 5px; font-size: 1.75rem; }
 .expiration-button { width: clamp(150px, 10vw, 185px); min-height: clamp(88px, 11vh, 118px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 0; border-radius: 17px; background: #adb0e1; cursor: pointer; }
 .expiration-button.is-active { background: #aaa6dc; }
 .calendar-icon { font-size: 2.25rem !important; }
-.date-fields { display: grid; gap: 14px; }
-.date-fields label { display: grid; grid-template-columns: 84px 1fr; align-items: center; gap: 10px; }
-.date-fields input { width: 100%; height: 48px; padding: 0 12px; border: 2px solid #d2c7e9; border-radius: 14px; background: var(--input); }
+.date-fields { display: grid; gap: 8px; }
+.date-fields label { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 10px; }
+.date-fields input { width: 100%; height: 42px; padding: 0 12px; border: 2px solid #d2c7e9; border-radius: 14px; background: var(--input); }
 .meme-image { width: clamp(112px, 8vw, 145px); height: clamp(112px, 14vh, 145px); display: block; justify-self: end; border-radius: 3px; object-fit: contain; background: #fff; }
 .form-message { min-height: 20px; margin: 3px 0 0; color: #724170; text-align: center; }
 .view--result h1 { margin-bottom: 38px; }
@@ -64,7 +66,7 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
 .stats-output--waiting { justify-content: flex-end; }
 .count-line { display: flex; align-items: center; gap: 22px; font-size: 2rem; }
 .count-box { min-width: 95px; height: 90px; display: grid; place-items: center; border: 2px solid #d2c7e9; border-radius: 14px; background: var(--input); font-size: 2.1rem; }
-.info-card { width: min(920px, calc(100% - 48px)); margin: clamp(34px, 5vh, 58px) auto 24px; padding: clamp(10px, 1.4vh, 15px) 18px; border-radius: 17px; background: var(--mint); text-align: center; font-size: clamp(.95rem, 1vw, 1.15rem); line-height: 1.18; }
+.info-card { width: min(920px, calc(100% - 48px)); margin: 12px auto 24px; padding: clamp(10px, 1.4vh, 15px) 18px; border-radius: 17px; background: var(--mint); text-align: center; font-size: clamp(.95rem, 1vw, 1.15rem); line-height: 1.18; }
 .info-card p { margin: 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
@@ -79,12 +81,12 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
   .result-panel { padding: 20px 16px; }
   .url-row { flex-direction: column; gap: 12px; align-items: stretch; }
   .input-with-action { height: 62px; }.primary-button { align-self: center; }
-  .options-row, .options-row--open { grid-template-columns: 1fr; gap: 15px; padding-top: 15px; }
+  .options-row, .options-row--open { min-height: 0; grid-template-columns: 1fr; gap: 15px; padding-top: 15px; }
   .option-block { margin: 0; }.meme-image { justify-self: center; }
   .date-fields label { grid-template-columns: 80px 1fr; }
   .stats-output { flex-wrap: wrap; gap: 16px; padding: 20px 5px 0; }
   .count-line { gap: 14px; }
-  .info-card { margin-top: 40px; font-size: .9rem; }
+  .info-card { margin-top: 12px; font-size: .9rem; }
 }
 
 @media (max-width: 480px) {
@@ -96,9 +98,10 @@ button:focus-visible, input:focus-visible { outline: 4px solid #6845ad; outline-
   .view h1 { margin-block: 28px 32px; font-size: clamp(2.7rem, 4vw, 4rem); }
   .action-panel { padding-top: 16px; }
   .options-row { min-height: 112px; }
+  .options-row--open { min-height: 210px; }
   .expiration-button { min-height: 82px; }
   .meme-image { width: 102px; height: 102px; }
-  .info-card { margin-top: 26px; padding-block: 8px; }
+  .info-card { margin-top: 12px; padding-block: 8px; }
   .view--stats h1 { margin-block: 24px; }
   .stats-output { min-height: 120px; }
 }

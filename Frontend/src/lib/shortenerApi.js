@@ -7,18 +7,35 @@ async function request(path, options) {
   return data
 }
 
-export function createShortLink({ url, startDate, endDate }) {
+function localTimestamp(date, time) {
+  if (!date || !time) throw new Error('Select both start and end dates and times.')
+  const timestamp = new Date(`${date}T${time}`)
+  if (Number.isNaN(timestamp.getTime())) throw new Error('Enter a valid date and time.')
+  return timestamp.toISOString()
+}
+
+export function createShortLink({ url, startDate, startTime, endDate, endTime }) {
+  const body = { url }
+  if (startDate || startTime || endDate || endTime) {
+    body.startAt = localTimestamp(startDate, startTime)
+    body.endAt = localTimestamp(endDate, endTime)
+    if (body.endAt <= body.startAt) throw new Error('End date and time must be after start date and time.')
+  }
   return request('/api/links', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, startDate, endDate }),
+    body: JSON.stringify(body),
   })
 }
 
-export function getLinkStats(shortUrl) {
-  let parsed
-  try { parsed = new URL(shortUrl) } catch { throw new Error('Enter a valid short URL.') }
-  const code = parsed.pathname.match(/^\/([A-Za-z0-9]+)\/?$/)?.[1]
+export function getLinkStats(value) {
+  const trimmed = value.trim()
+  let code = /^[A-Za-z0-9]+$/.test(trimmed) ? trimmed : ''
+  if (!code) {
+    let parsed
+    try { parsed = new URL(trimmed) } catch { throw new Error('Enter a valid short URL or code.') }
+    code = parsed.pathname.match(/^\/([A-Za-z0-9]+)\/?$/)?.[1]
+  }
   if (!code) throw new Error('Enter a valid short URL.')
   return request(`/api/links/${encodeURIComponent(code)}`)
 }

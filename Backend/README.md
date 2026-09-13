@@ -22,8 +22,10 @@ use host `postgres`, port `5432`, database `shorturl`, user `shorturl`, and pass
 ## Endpoints
 
 - `GET /health`
-- `POST /api/links` with `{ "url": "https://example.com", "startDate": "2026-09-13", "endDate": "2026-10-13" }`. Dates are optional. Redirects before the start or after the end return HTTP 410.
+- `POST /api/links` with `{ "url": "https://example.com", "startAt": "2026-09-14T07:30:00Z", "endAt": "2026-09-14T08:30:00Z" }`. The UTC timestamps are optional together.
 - `GET /api/links/:code`
 - `GET /:code`
 
-Set `BASE_URL` to the public redirect origin so `shortUrl` is copyable. Without it, the API uses the request host. The frontend development server proxies `/api` to port 8080; set `VITE_API_BASE_URL` for a separately hosted API.
+Redirects before `startAt` return HTTP 403 and redirects at or after `endAt` return HTTP 410. Blocked redirects do not increase `clickCount`.
+
+Set `BASE_URL` to the public redirect origin so `shortUrl` is copyable. Without it, the API uses the request host. Set `FRONTEND_ORIGIN` to the deployed Frontend origin when it differs from `http://localhost:5173`. The Frontend development server proxies `/api` to port 8080; set `VITE_API_BASE_URL` for a separately hosted API.

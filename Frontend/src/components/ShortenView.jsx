@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
 import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded'
 import { validateDateRange, validateHttpUrl } from '../lib/mockShortener'
@@ -9,9 +9,23 @@ export default function ShortenView({ onShorten }) {
   const [url, setUrl] = useState('')
   const [expirationOpen, setExpirationOpen] = useState(false)
   const [startDate, setStartDate] = useState('')
+  const [startTime, setStartTime] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [endTime, setEndTime] = useState('')
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const expirationTimeInitialized = useRef(false)
+
+  function toggleExpiration() {
+    if (!expirationOpen && !expirationTimeInitialized.current) {
+      const now = new Date()
+      const localTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+      setStartTime(localTime)
+      setEndTime(localTime)
+      expirationTimeInitialized.current = true
+    }
+    setExpirationOpen((open) => !open)
+  }
 
   async function pasteUrl() {
     try {
@@ -42,7 +56,9 @@ export default function ShortenView({ onShorten }) {
       const link = await createShortLink({
         url: url.trim(),
         startDate: expirationOpen ? startDate : '',
+        startTime: expirationOpen ? startTime : '',
         endDate: expirationOpen ? endDate : '',
+        endTime: expirationOpen ? endTime : '',
       })
       onShorten({ originalUrl: link.destinationUrl, shortUrl: link.shortUrl })
     } catch (error) {
@@ -82,7 +98,7 @@ export default function ShortenView({ onShorten }) {
               className={`expiration-button ${expirationOpen ? 'is-active' : ''}`}
               type="button"
               aria-expanded={expirationOpen}
-              onClick={() => setExpirationOpen((open) => !open)}
+              onClick={toggleExpiration}
             >
               <CalendarMonthOutlinedIcon className="calendar-icon" aria-hidden="true" />
               Set Expiration
@@ -96,8 +112,16 @@ export default function ShortenView({ onShorten }) {
                 <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
               </label>
               <label>
+                <span>Start time</span>
+                <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} />
+              </label>
+              <label>
                 <span>End date</span>
                 <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+              </label>
+              <label>
+                <span>End time</span>
+                <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} />
               </label>
             </div>
           )}

@@ -1,14 +1,15 @@
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded'
+import { Link } from 'react-router-dom'
 
-export default function Header({ onLogoClick, onStatsClick }) {
+export default function Header({ onLogoClick }) {
   return (
     <header className="site-header">
-      <button className="brand" type="button" onClick={onLogoClick}>
+      <Link className="brand" to="/" onClick={onLogoClick}>
         Juno Short<StarBorderRoundedIcon className="brand-star" aria-hidden="true" />
-      </button>
-      <button className="nav-link" type="button" onClick={onStatsClick}>
+      </Link>
+      <Link className="nav-link" to="/stats">
         Check Total Press
-      </button>
+      </Link>
     </header>
   )
 }
