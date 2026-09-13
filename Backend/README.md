@@ -6,8 +6,18 @@ Go API using Gin, GORM, and PostgreSQL.
 
 1. Copy `.env.example` to `.env`.
 2. Start PostgreSQL with `docker compose up -d`.
-3. Apply both `*.up.sql` migrations in numeric order to the database.
-4. Run `go mod tidy` and `go run ./cmd/api`.
+3. Run `go run ./cmd/migrate` to apply pending SQL files in `migrations/`.
+4. Run `go run ./cmd/api`.
+
+The migrate command reads `DATABASE_URL` from `.env`, applies each migration once,
+and records completed versions in `schema_migrations`. It can be run again safely.
+PostgreSQL must already be running; Docker is optional if you have PostgreSQL installed locally.
+
+With Docker Compose, pgAdmin 4 is available at `http://localhost:5050`.
+Sign in using `PGADMIN_DEFAULT_EMAIL` and `PGADMIN_DEFAULT_PASSWORD` from `.env`
+(defaults: `admin@example.com` / `change-me`). To register this database in pgAdmin,
+use host `postgres`, port `5432`, database `shorturl`, user `shorturl`, and password
+`change-me`. The pgAdmin data volume keeps its settings across container restarts.
 
 ## Endpoints
 
