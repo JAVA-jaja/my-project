@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined'
 import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded'
-import { makeShortUrl, validateDateRange, validateHttpUrl } from '../lib/mockShortener'
+import { validateDateRange, validateHttpUrl } from '../lib/mockShortener'
+import { createShortLink } from '../lib/shortenerApi'
 import MemeImage from './MemeImage'
 
 export default function ShortenView({ onShorten }) {
@@ -10,6 +11,7 @@ export default function ShortenView({ onShorten }) {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [message, setMessage] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   async function pasteUrl() {
     try {
@@ -21,7 +23,7 @@ export default function ShortenView({ onShorten }) {
     }
   }
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault()
     if (!validateHttpUrl(url.trim())) {
       setMessage('Enter a valid HTTP or HTTPS URL.')
@@ -35,12 +37,19 @@ export default function ShortenView({ onShorten }) {
     }
 
     setMessage('')
-    onShorten({
-      originalUrl: url.trim(),
-      shortUrl: makeShortUrl(url.trim()),
-      startDate: expirationOpen ? startDate : '',
-      endDate: expirationOpen ? endDate : '',
-    })
+    setSubmitting(true)
+    try {
+      const link = await createShortLink({
+        url: url.trim(),
+        startDate: expirationOpen ? startDate : '',
+        endDate: expirationOpen ? endDate : '',
+      })
+      onShorten({ originalUrl: link.destinationUrl, shortUrl: link.shortUrl })
+    } catch (error) {
+      setMessage(error.message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -63,7 +72,7 @@ export default function ShortenView({ onShorten }) {
               Paste <ContentPasteRoundedIcon aria-hidden="true" />
             </button>
           </div>
-          <button className="primary-button" type="submit">Short URL</button>
+          <button className="primary-button" type="submit" disabled={submitting}>Short URL</button>
         </div>
 
         <div className={`options-row ${expirationOpen ? 'options-row--open' : ''}`}>
