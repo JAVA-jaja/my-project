@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import InfoCard from './components/InfoCard'
 import ResultView from './components/ResultView'
@@ -6,31 +7,41 @@ import ShortenView from './components/ShortenView'
 import StatsView from './components/StatsView'
 
 export default function App() {
-  const [view, setView] = useState('shorten')
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  )
+}
+
+function AppRoutes() {
   const [result, setResult] = useState(null)
+  const location = useLocation()
 
   function showResult(nextResult) {
     setResult(nextResult)
-    setView('result')
   }
 
   function restart() {
     setResult(null)
-    setView('shorten')
   }
 
   return (
     <div className="app-shell">
-      <Header
-        onLogoClick={restart}
-        onStatsClick={() => setView('stats')}
-      />
+      <Header onLogoClick={restart} />
       <main className="page-content">
-        {view === 'shorten' && <ShortenView onShorten={showResult} />}
-        {view === 'result' && <ResultView result={result} onRestart={restart} />}
-        {view === 'stats' && <StatsView />}
+        <Routes>
+          <Route
+            path="/"
+            element={result
+              ? <ResultView result={result} onRestart={restart} />
+              : <ShortenView onShorten={showResult} />}
+          />
+          <Route path="/stats" element={<StatsView />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
-      {(view === 'shorten' || view === 'result') && <InfoCard />}
+      {location.pathname === '/' && <InfoCard />}
     </div>
   )
 }

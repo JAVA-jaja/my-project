@@ -22,16 +22,28 @@ func NewLinkController(service *services.LinkService) *LinkController {
 }
 
 type createLinkRequest struct {
-	URL string `json:"url" binding:"required"`
-	StartDate string `json:"startDate"`
-	EndDate string `json:"endDate"`
+	URL     string `json:"url" binding:"required"`
+	StartAt string `json:"startAt"`
+	EndAt   string `json:"endAt"`
 }
 
-func parseDate(value string) (*time.Time, error) {
-	if value == "" { return nil, nil }
-	date, err := time.Parse("2006-01-02", value)
-	if err != nil { return nil, err }
-	return &date, nil
+func parseActiveWindow(startValue, endValue string) (*time.Time, *time.Time, error) {
+	startValue = strings.TrimSpace(startValue)
+	endValue = strings.TrimSpace(endValue)
+	if startValue == "" && endValue == "" {
+		return nil, nil, nil
+	}
+	if startValue == "" || endValue == "" {
+		return nil, nil, errors.New("startAt and endAt must be provided together")
+	}
+	startAt, startErr := time.Parse(time.RFC3339, startValue)
+	endAt, endErr := time.Parse(time.RFC3339, endValue)
+	if startErr != nil || endErr != nil || !endAt.After(startAt) {
+		return nil, nil, errors.New("invalid active window")
+	}
+	startAt = startAt.UTC()
+	endAt = endAt.UTC()
+	return &startAt, &endAt, nil
 }
 
 func validateDestinationURL(value string) error {
@@ -65,14 +77,13 @@ func (ctl *LinkController) Create(c *gin.Context) {
 		return
 	}
 
-	startDate, startErr := parseDate(request.StartDate)
-	endDate, endErr := parseDate(request.EndDate)
-	if startErr != nil || endErr != nil || (startDate != nil && endDate != nil && endDate.Before(*startDate)) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid date range"})
+	startAt, endAt, windowErr := parseActiveWindow(request.StartAt, request.EndAt)
+	if windowErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": windowErr.Error()})
 		return
 	}
 
-	link, err := ctl.service.Create(c.Request.Context(), request.URL, startDate, endDate)
+	link, err := ctl.service.Create(c.Request.Context(), request.URL, startAt, endAt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "cannot create short link"})
 		return
@@ -89,8 +100,8 @@ func (ctl *LinkController) Create(c *gin.Context) {
 		"destinationUrl": link.DestinationURL,
 		"clickCount":     link.ClickCount,
 		"createdAt":      link.CreatedAt,
-		"startDate":      request.StartDate,
-		"endDate":        request.EndDate,
+		"startAt":        link.StartAt,
+		"endAt":          link.EndAt,
 	})
 }
 
@@ -110,8 +121,12 @@ func (ctl *LinkController) Get(c *gin.Context) {
 
 func (ctl *LinkController) Redirect(c *gin.Context) {
 	destinationURL, err := ctl.service.ResolveAndIncrement(c.Request.Context(), c.Param("code"))
-	if errors.Is(err, services.ErrLinkInactive) {
-		c.JSON(http.StatusGone, gin.H{"error": "short link is not active"})
+	if errors.Is(err, services.ErrLinkNotActive) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "short link is not active yet"})
+		return
+	}
+	if errors.Is(err, services.ErrLinkExpired) {
+		c.JSON(http.StatusGone, gin.H{"error": "short link has expired"})
 		return
 	}
 	if errors.Is(err, services.ErrLinkNotFound) {

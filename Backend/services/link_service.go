@@ -15,7 +15,8 @@ import (
 var (
 	ErrLinkNotFound   = errors.New("link not found")
 	ErrCodeGeneration = errors.New("cannot generate unique short code")
-	ErrLinkInactive = errors.New("link is not active")
+	ErrLinkNotActive  = errors.New("link is not active yet")
+	ErrLinkExpired    = errors.New("link has expired")
 )
 
 type LinkService struct {
@@ -26,7 +27,7 @@ func NewLinkService(db *gorm.DB) *LinkService {
 	return &LinkService{db: db}
 }
 
-func (s *LinkService) Create(ctx context.Context, destinationURL string, startDate, endDate *time.Time) (*models.Link, error) {
+func (s *LinkService) Create(ctx context.Context, destinationURL string, startAt, endAt *time.Time) (*models.Link, error) {
 	const maximumAttempts = 5
 
 	for attempt := 0; attempt < maximumAttempts; attempt++ {
@@ -35,7 +36,7 @@ func (s *LinkService) Create(ctx context.Context, destinationURL string, startDa
 			return nil, err
 		}
 
-		link := models.Link{ShortCode: code, DestinationURL: destinationURL, StartDate: startDate, EndDate: endDate}
+		link := models.Link{ShortCode: code, DestinationURL: destinationURL, StartAt: startAt, EndAt: endAt}
 		result := s.db.WithContext(ctx).Create(&link)
 		if result.Error == nil {
 			return &link, nil
@@ -68,7 +69,18 @@ func (s *LinkService) GetStats(ctx context.Context, code string) (*models.Link, 
 	return s.FindByCode(ctx, code)
 }
 
+func linkWindowError(link *models.Link, now time.Time) error {
+	if link.StartAt != nil && now.Before(*link.StartAt) {
+		return ErrLinkNotActive
+	}
+	if link.EndAt != nil && !now.Before(*link.EndAt) {
+		return ErrLinkExpired
+	}
+	return nil
+}
+
 func (s *LinkService) ResolveAndIncrement(ctx context.Context, code string) (string, error) {
+	now := time.Now().UTC()
 	var result struct {
 		DestinationURL string `gorm:"column:destination_url"`
 	}
@@ -78,16 +90,16 @@ func (s *LinkService) ResolveAndIncrement(ctx context.Context, code string) (str
 		SET click_count = click_count + 1,
 		    updated_at = NOW()
 		WHERE short_code = ?
-		  AND (start_date IS NULL OR start_date <= CURRENT_DATE)
-		  AND (end_date IS NULL OR end_date >= CURRENT_DATE)
+		  AND (start_at IS NULL OR start_at <= ?)
+		  AND (end_at IS NULL OR end_at > ?)
 		RETURNING destination_url
-	`, code).Scan(&result)
+	`, code, now, now).Scan(&result)
 	if tx.Error != nil {
 		return "", fmt.Errorf("resolve link: %w", tx.Error)
 	}
 	if tx.RowsAffected == 0 {
-		if _, err := s.FindByCode(ctx, code); err == nil {
-			return "", ErrLinkInactive
+		if link, err := s.FindByCode(ctx, code); err == nil {
+			return "", linkWindowError(link, now)
 		} else if !errors.Is(err, ErrLinkNotFound) {
 			return "", err
 		}
