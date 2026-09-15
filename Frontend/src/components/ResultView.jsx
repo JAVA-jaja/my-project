@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded'
+import { copyText } from '../lib/clipboard'
 
 export default function ResultView({ result, onRestart }) {
   const [message, setMessage] = useState('')
+  const shortUrlInput = useRef(null)
 
   async function copyShortUrl() {
-    try {
-      await navigator.clipboard.writeText(result.shortUrl)
+    const copied = await copyText(result.shortUrl, shortUrlInput.current)
+    if (copied) {
       setMessage('Copied!')
-    } catch {
+    } else {
       setMessage('Could not copy. Select the short link and copy it manually.')
     }
   }
@@ -24,7 +26,7 @@ export default function ResultView({ result, onRestart }) {
         <div className="result-field">
           <label htmlFor="short-link">Short Link</label>
           <span className="input-with-action result-input">
-            <input id="short-link" value={result.shortUrl} readOnly />
+            <input id="short-link" ref={shortUrlInput} value={result.shortUrl} readOnly />
             <button className="mini-button" type="button" onClick={copyShortUrl}>
               Copy <ContentCopyRoundedIcon aria-hidden="true" />
             </button>

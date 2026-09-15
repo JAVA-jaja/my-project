@@ -17,7 +17,9 @@ services:
       PORT: 8080
       BASE_URL: ${BASE_URL:-http://localhost:8080}
       DATABASE_URL: ${DATABASE_URL_DOCKER:-postgres://shorturl:change-me@postgres:5432/shorturl?sslmode=disable}
-      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
+      # Local frontend ports can vary (for example when exposed by a VM/cluster).
+      # Set an exact origin in production; local Compose allows all origins by default.
+      FRONTEND_ORIGIN: "${FRONTEND_ORIGIN:-*}"
     ports:
       - "8080:8080"
     depends_on:

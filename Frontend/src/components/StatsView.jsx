@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded'
 import MouseOutlinedIcon from '@mui/icons-material/MouseOutlined'
 import { getLinkStats } from '../lib/shortenerApi'
+import { readClipboardText } from '../lib/clipboard'
 import MemeImage from './MemeImage'
 
 export default function StatsView() {
@@ -9,14 +10,16 @@ export default function StatsView() {
   const [count, setCount] = useState(null)
   const [message, setMessage] = useState('')
   const [checking, setChecking] = useState(false)
+  const urlInput = useRef(null)
 
   async function pasteUrl() {
     try {
-      const text = await navigator.clipboard.readText()
+      const text = await readClipboardText()
       setUrl(text)
       setMessage('Pasted from clipboard.')
     } catch {
-      setMessage('Clipboard access is unavailable. Paste the URL manually.')
+      urlInput.current?.focus()
+      setMessage('Automatic paste is blocked on HTTP. Press Ctrl+V to paste here.')
     }
   }
 
@@ -53,8 +56,10 @@ export default function StatsView() {
             <label className="sr-only" htmlFor="stats-url">Short URL to check</label>
             <input
               id="stats-url"
+              ref={urlInput}
               value={url}
               onChange={(event) => setUrl(event.target.value)}
+              onPaste={() => setMessage('Pasted from clipboard.')}
               placeholder="Paste your Short URL here...(e.g. https://junoshort.com/ABC123)"
             />
             <button className="mini-button" type="button" onClick={pasteUrl}>

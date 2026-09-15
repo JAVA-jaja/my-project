@@ -4,7 +4,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    proxy: { '/api': 'http://localhost:8080', '/health': 'http://localhost:8080' },
+    proxy: {
+      '/api': 'http://localhost:8080',
+      '/health': 'http://localhost:8080',
+      '^/[A-Za-z0-9]{8}/?$': 'http://localhost:8080',
+    },
   },
   test: {
     environment: 'jsdom',

@@ -7,7 +7,7 @@ beforeEach(() => {
   window.history.replaceState({}, '', '/')
   global.fetch = vi.fn(async (path, options) => {
     if (options?.method === 'POST') {
-      return { ok: true, json: async () => ({ destinationUrl: 'https://example.com/long-path', shortUrl: 'https://junoshort.com/ABC123' }) }
+      return { ok: true, json: async () => ({ destinationUrl: 'https://example.com/long-path', shortCode: 'ABC12345', shortUrl: 'https://junoshort.com/ABC12345' }) }
     }
     if (path === '/api/links/ABC123') {
       return { ok: true, json: async () => ({ clickCount: 12 }) }
@@ -130,6 +130,9 @@ describe('shortening flow', () => {
     expect(
       screen.getByDisplayValue('https://example.com/long-path'),
     ).toBeInTheDocument()
+    expect(
+      screen.getByDisplayValue(`${window.location.origin}/ABC12345`),
+    ).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: /^copy$/i }))
     expect(screen.getByText(/copied/i)).toBeInTheDocument()
@@ -158,5 +161,24 @@ describe('shortening flow', () => {
 
     expect(await screen.findByTestId('click-count')).toHaveTextContent('12')
     expect(screen.getByText('Times!')).toBeInTheDocument()
+  })
+
+  it('keeps the statistics paste button usable when clipboard access is blocked', async () => {
+    const user = userEvent.setup()
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: undefined,
+    })
+    render(<App />)
+
+    await user.click(screen.getByRole('link', { name: /check total press/i }))
+    await user.click(screen.getByRole('button', { name: /^paste/i }))
+
+    expect(screen.getByLabelText(/short url to check/i)).toHaveFocus()
+    expect(screen.getByText(/press ctrl\+v/i)).toBeInTheDocument()
+
+    if (clipboardDescriptor) Object.defineProperty(navigator, 'clipboard', clipboardDescriptor)
+    else delete navigator.clipboard
   })
 })
