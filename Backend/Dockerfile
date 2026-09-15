@@ -16,4 +16,4 @@ COPY --from=build /out/api /out/migrate ./
 
 USER 10001:10001
 EXPOSE 8080
-CMD ["/app/api"]
+CMD ["/bin/sh", "-c", "/app/migrate && exec /app/api"]

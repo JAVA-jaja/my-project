@@ -46,4 +46,4 @@ use host `postgres`, port `5432`, database `shorturl`, user `shorturl`, and pass
 
 Redirects before `startAt` return HTTP 403 and redirects at or after `endAt` return HTTP 410. Blocked redirects do not increase `clickCount`.
 
-Set `BASE_URL` to the public redirect origin so `shortUrl` is copyable. Without it, the API uses the request host. Set `FRONTEND_ORIGIN` to the deployed Frontend origin when it differs from `http://localhost:5173`. The Frontend development server proxies `/api` to port 8080; set `VITE_API_BASE_URL` for a separately hosted API.
+Set `BASE_URL` to the public redirect origin so `shortUrl` is copyable. Without it, the API uses the request host. Local Compose allows all frontend origins so it also works through VM or cluster-assigned ports. In production, set `FRONTEND_ORIGIN` to the exact deployed Frontend origin; multiple origins may be comma-separated. The Frontend development server proxies `/api` to port 8080; set `VITE_API_BASE_URL` for a separately hosted API.

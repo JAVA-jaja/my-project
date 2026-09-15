@@ -34,3 +34,19 @@ func TestCORSMiddlewareRejectsOtherOrigins(t *testing.T) {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusForbidden)
 	}
 }
+
+func TestCORSMiddlewareWildcardAllowsAnyOrigin(t *testing.T) {
+	t.Setenv("FRONTEND_ORIGIN", "*")
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodOptions, "/api/links", nil)
+	request.Header.Set("Origin", "http://192.168.162.130:32183")
+
+	Setup(nil).ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusNoContent {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusNoContent)
+	}
+	if got := recorder.Header().Get("Access-Control-Allow-Origin"); got != "*" {
+		t.Fatalf("Access-Control-Allow-Origin = %q, want %q", got, "*")
+	}
+}

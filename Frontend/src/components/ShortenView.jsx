@@ -3,6 +3,7 @@ import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined
 import ContentPasteRoundedIcon from '@mui/icons-material/ContentPasteRounded'
 import { validateDateRange, validateHttpUrl } from '../lib/mockShortener'
 import { createShortLink } from '../lib/shortenerApi'
+import { readClipboardText } from '../lib/clipboard'
 import MemeImage from './MemeImage'
 
 export default function ShortenView({ onShorten }) {
@@ -15,6 +16,7 @@ export default function ShortenView({ onShorten }) {
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const expirationTimeInitialized = useRef(false)
+  const urlInput = useRef(null)
 
   function toggleExpiration() {
     if (!expirationOpen && !expirationTimeInitialized.current) {
@@ -29,11 +31,12 @@ export default function ShortenView({ onShorten }) {
 
   async function pasteUrl() {
     try {
-      const text = await navigator.clipboard.readText()
+      const text = await readClipboardText()
       setUrl(text)
       setMessage('Pasted from clipboard.')
     } catch {
-      setMessage('Clipboard access is unavailable. Paste the URL manually.')
+      urlInput.current?.focus()
+      setMessage('Automatic paste is blocked on HTTP. Press Ctrl+V to paste here.')
     }
   }
 
@@ -60,7 +63,10 @@ export default function ShortenView({ onShorten }) {
         endDate: expirationOpen ? endDate : '',
         endTime: expirationOpen ? endTime : '',
       })
-      onShorten({ originalUrl: link.destinationUrl, shortUrl: link.shortUrl })
+      const shortUrl = link.shortCode
+        ? `${window.location.origin}/${link.shortCode}`
+        : link.shortUrl
+      onShorten({ originalUrl: link.destinationUrl, shortUrl })
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -77,9 +83,11 @@ export default function ShortenView({ onShorten }) {
             <label className="sr-only" htmlFor="long-url">URL to shorten</label>
             <input
               id="long-url"
+              ref={urlInput}
               type="url"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
+              onPaste={() => setMessage('Pasted from clipboard.')}
               placeholder="Paste your URL here...(e.g. https://junoshort.com)"
               aria-invalid={message.startsWith('Enter a valid') || undefined}
               aria-describedby="shorten-message"

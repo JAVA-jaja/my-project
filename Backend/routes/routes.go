@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"os"
+	"strings"
 
 	"short-url/controllers"
 
@@ -28,19 +29,33 @@ func Setup(linkController *controllers.LinkController) *gin.Engine {
 }
 
 func corsMiddleware() gin.HandlerFunc {
-	allowedOrigin := os.Getenv("FRONTEND_ORIGIN")
-	if allowedOrigin == "" {
-		allowedOrigin = "http://localhost:5173"
+	configuredOrigins := os.Getenv("FRONTEND_ORIGIN")
+	if configuredOrigins == "" {
+		configuredOrigins = "*"
 	}
+
+	allowedOrigins := make(map[string]struct{})
+	for _, origin := range strings.Split(configuredOrigins, ",") {
+		origin = strings.TrimSpace(origin)
+		if origin != "" {
+			allowedOrigins[origin] = struct{}{}
+		}
+	}
+	_, allowAllOrigins := allowedOrigins["*"]
 
 	return func(c *gin.Context) {
 		origin := c.GetHeader("Origin")
-		if origin != "" && origin != allowedOrigin {
+		_, originIsAllowed := allowedOrigins[origin]
+		if origin != "" && !allowAllOrigins && !originIsAllowed {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "origin is not allowed"})
 			return
 		}
-		if origin == allowedOrigin {
-			c.Header("Access-Control-Allow-Origin", allowedOrigin)
+		if origin != "" {
+			if allowAllOrigins {
+				c.Header("Access-Control-Allow-Origin", "*")
+			} else {
+				c.Header("Access-Control-Allow-Origin", origin)
+			}
 			c.Header("Vary", "Origin")
 			c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			c.Header("Access-Control-Allow-Headers", "Content-Type")
