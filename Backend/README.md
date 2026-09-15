@@ -2,6 +2,24 @@
 
 Go API using Gin, GORM, and PostgreSQL.
 
+## Run with Docker
+
+From this directory, run `docker compose up --build -d`. This starts PostgreSQL,
+runs the SQL migrations, then starts the API and Frontend. Open the Frontend at
+`http://localhost:5173`, the API at `http://localhost:8080`, or pgAdmin at
+`http://localhost:5050`. Run `docker compose down` to stop the services while
+keeping database data.
+
+The container database hostname is `postgres`. Compose uses `DATABASE_URL_DOCKER`
+if it is set; otherwise it uses the bundled PostgreSQL credentials. The existing
+`DATABASE_URL` in `.env` remains for running Go commands on the host.
+
+For a separate Render Frontend service, set its `BACKEND_URL` environment variable
+to the reachable Backend origin (for example, `https://your-backend.onrender.com`,
+without a trailing slash), then redeploy. Compose sets this variable to
+`http://backend:8080` automatically. The Frontend serves `/api/` and `/health`
+through this backend; Render cannot resolve Compose's `backend` hostname.
+
 ## Run locally
 
 1. Copy `.env.example` to `.env`.
